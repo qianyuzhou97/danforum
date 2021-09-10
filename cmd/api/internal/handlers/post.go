@@ -11,12 +11,12 @@ import (
 	"go.uber.org/zap"
 )
 
-type Posts struct {
+type PostService struct {
 	db    *sqlx.DB
 	sugar *zap.SugaredLogger
 }
 
-func (p *Posts) ListAll(w http.ResponseWriter, r *http.Request) error {
+func (p *PostService) ListAll(w http.ResponseWriter, r *http.Request) error {
 
 	list, err := post.ListAll(r.Context(), p.db)
 
@@ -27,7 +27,7 @@ func (p *Posts) ListAll(w http.ResponseWriter, r *http.Request) error {
 	return web.Respond(w, list, http.StatusOK)
 }
 
-func (p *Posts) GetByID(w http.ResponseWriter, r *http.Request) error {
+func (p *PostService) GetPostByID(w http.ResponseWriter, r *http.Request) error {
 	id := chi.URLParam(r, "id")
 
 	list, err := post.GetByID(r.Context(), p.db, id)
@@ -39,7 +39,7 @@ func (p *Posts) GetByID(w http.ResponseWriter, r *http.Request) error {
 	return web.Respond(w, list, http.StatusOK)
 }
 
-func (p *Posts) CreatePost(w http.ResponseWriter, r *http.Request) error {
+func (p *PostService) CreatePost(w http.ResponseWriter, r *http.Request) error {
 	var np post.NewPost
 	if err := web.Decode(r, &np); err != nil {
 		return errors.Wrap(err, "error decoding post")
