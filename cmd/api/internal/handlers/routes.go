@@ -15,6 +15,7 @@ func API(db *sqlx.DB, sugar *zap.SugaredLogger) http.Handler {
 	p := Posts{db: db, sugar: sugar}
 
 	app.Handle(http.MethodGet, "/v1/posts", p.ListAll)
+	app.Handle(http.MethodPost, "/v1/posts", p.CreatePost)
 	app.Handle(http.MethodGet, "/v1/posts/{id}", p.GetByID)
 
 	return app
