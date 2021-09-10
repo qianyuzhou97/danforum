@@ -11,7 +11,7 @@ type Community struct {
 }
 
 type NewCommunity struct {
-	ID           int    `json:"id"`
-	Name         string `json:"name"`
-	Introduction string `json:"introduction"`
+	ID           int    `json:"id" validate:"required"`
+	Name         string `json:"name" validate:"required"`
+	Introduction string `json:"introduction" validate:"required"`
 }
