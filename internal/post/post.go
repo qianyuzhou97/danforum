@@ -2,6 +2,7 @@ package post
 
 import (
 	"context"
+	"strconv"
 
 	"github.com/jmoiron/sqlx"
 	"github.com/pkg/errors"
@@ -36,5 +37,37 @@ func CreateNewPost(ctx context.Context, db *sqlx.DB, np NewPost) error {
 	if _, err := db.ExecContext(ctx, q, np.ID, np.Title, np.Content, np.Author, np.Community); err != nil {
 		return errors.Wrap(err, "error get posts based on post_id")
 	}
+	return nil
+}
+
+func UpdateByID(ctx context.Context, db *sqlx.DB, up UpdatePost) error {
+	p, err := GetByID(ctx, db, strconv.Itoa(up.ID))
+	if err != nil {
+		return err
+	}
+
+	if up.Title != "" {
+		p.Title = up.Title
+	}
+
+	if up.Content != "" {
+		p.Content = up.Content
+	}
+
+	const q = `update posts set title = ?,content = ? where post_id = ?`
+	if _, err = db.ExecContext(ctx, q, p.Title, p.Content, p.ID); err != nil {
+		return errors.Wrap(err, "updating post")
+	}
+	return nil
+}
+
+func DeleteByID(ctx context.Context, db *sqlx.DB, postID string) error {
+
+	const q = `DELETE FROM posts WHERE post_id = ?`
+
+	if _, err := db.ExecContext(ctx, q, postID); err != nil {
+		return errors.Wrapf(err, "deleting post %s", postID)
+	}
+
 	return nil
 }

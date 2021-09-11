@@ -19,3 +19,9 @@ type NewPost struct {
 	Author    int    `db:"author_id" json:"author_id" validate:"required"`
 	Community int    `db:"community_id" json:"community_id" validate:"required"`
 }
+
+type UpdatePost struct {
+	ID        int    `db:"post_id" json:"id" validate:"required"`
+	Title     string `db:"title" json:"title" validate:"omitempty"`
+	Content   string `db:"content" json:"content" validate:"omitempty"`
+}
