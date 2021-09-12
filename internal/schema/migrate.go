@@ -11,7 +11,7 @@ var migrations = []darwin.Migration{
 		Description: "Add posts Table",
 		Script: `
 CREATE TABLE posts (
-	post_id   INT primary key,
+	post_id   bigint primary key,
 	title        VARCHAR(128),
 	content      VARCHAR(8192),
 	author_id  INT,
@@ -25,7 +25,7 @@ CREATE TABLE posts (
 		Description: "Add community Table",
 		Script: `
 CREATE TABLE community (
-	community_id   INT primary key,
+	community_id   bigint primary key,
 	name        VARCHAR(128),
 	introduction      VARCHAR(256),
 	create_time TIMESTAMP default CURRENT_TIMESTAMP,
@@ -37,12 +37,10 @@ CREATE TABLE community (
 		Description: "Add User Table",
 		Script: `
 CREATE TABLE user (
-	user_id   INT    primary key,
+	user_id   bigint    primary key,
 	username        VARCHAR(128),
 	password        VARCHAR(128),
-	introduction    VARCHAR(256),
 	email       varchar(64)                         null,
-    gender      tinyint   default 0                 not null,
 	create_time TIMESTAMP default CURRENT_TIMESTAMP,
 	update_time TIMESTAMP default CURRENT_TIMESTAMP on update CURRENT_TIMESTAMP,
 

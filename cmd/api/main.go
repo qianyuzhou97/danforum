@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	_ "expvar"
 	"log"
 	"net/http"
 	"os"
@@ -12,6 +13,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/qianyuzhou97/danforum/cmd/api/internal/handlers"
 	"github.com/qianyuzhou97/danforum/internal/platform/database"
+	"github.com/qianyuzhou97/danforum/internal/platform/snowflake"
 	"go.uber.org/zap"
 )
 
@@ -33,6 +35,10 @@ func run(sugar *zap.SugaredLogger) error {
 
 	sugar.Info("main : Started")
 	defer sugar.Info("main : Completed")
+
+	if err := snowflake.Init("2020-01-01", 1); err != nil {
+		return errors.Wrapf(err, "init snowflake failed")
+	}
 
 	//database
 	db, err := database.Open()

@@ -1,7 +1,9 @@
 package handlers
 
 import (
+	"context"
 	"net/http"
+	"strconv"
 
 	"github.com/go-chi/chi"
 	"github.com/jmoiron/sqlx"
@@ -16,49 +18,49 @@ type PostService struct {
 	sugar *zap.SugaredLogger
 }
 
-func (p *PostService) ListAll(w http.ResponseWriter, r *http.Request) error {
+func (p *PostService) ListAll(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
 
-	list, err := post.ListAll(r.Context(), p.db)
+	list, err := post.ListAll(ctx, p.db)
 
 	if err != nil {
 		return errors.Wrap(err, "error: selecting posts")
 	}
 
-	return web.Respond(w, list, http.StatusOK)
+	return web.Respond(ctx, w, list, http.StatusOK)
 }
 
-func (p *PostService) GetByID(w http.ResponseWriter, r *http.Request) error {
-	id := chi.URLParam(r, "id")
+func (p *PostService) GetByID(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
+	id, _ := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
 
-	list, err := post.GetByID(r.Context(), p.db, id)
+	list, err := post.GetByID(ctx, p.db, id)
 
 	if err != nil {
 		return errors.Wrap(err, "error: get posts by ID")
 	}
 
-	return web.Respond(w, list, http.StatusOK)
+	return web.Respond(ctx, w, list, http.StatusOK)
 }
 
-func (p *PostService) Create(w http.ResponseWriter, r *http.Request) error {
+func (p *PostService) Create(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
 	var np post.NewPost
 	if err := web.Decode(r, &np); err != nil {
 		return errors.Wrap(err, "error decoding post")
 	}
 
-	if err := post.CreateNewPost(r.Context(), p.db, np); err != nil {
+	if err := post.CreateNewPost(ctx, p.db, np); err != nil {
 		return errors.Wrap(err, "error creating post")
 	}
 	return nil
 }
 
-func (p *PostService) UpdateByID(w http.ResponseWriter, r *http.Request) error {
+func (p *PostService) UpdateByID(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
 
 	var update post.UpdatePost
 	if err := web.Decode(r, &update); err != nil {
 		return errors.Wrap(err, "decoding post update")
 	}
 
-	if err := post.UpdateByID(r.Context(), p.db, update); err != nil {
+	if err := post.UpdateByID(ctx, p.db, update); err != nil {
 		return errors.Wrapf(err, "updating post %q", update.ID)
 	}
 
@@ -66,12 +68,12 @@ func (p *PostService) UpdateByID(w http.ResponseWriter, r *http.Request) error {
 }
 
 // Delete removes a single product identified by an ID in the request URL.
-func (p *PostService) DeleteByID(w http.ResponseWriter, r *http.Request) error {
+func (p *PostService) DeleteByID(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
 	id := chi.URLParam(r, "id")
 
-	if err := post.DeleteByID(r.Context(), p.db, id); err != nil {
+	if err := post.DeleteByID(ctx, p.db, id); err != nil {
 		return errors.Wrapf(err, "deleting post %q", id)
 	}
 
-	return web.Respond(w, nil, http.StatusNoContent)
+	return web.Respond(ctx, w, nil, http.StatusNoContent)
 }

@@ -29,7 +29,7 @@ func GetByID(ctx context.Context, db *sqlx.DB, communityID string) (*Community, 
 	return &p, nil
 }
 
-func CreateNewCommunity(ctx context.Context, db *sqlx.DB, nc NewCommunity) error {
+func Create(ctx context.Context, db *sqlx.DB, nc NewCommunity) error {
 	const q = `insert into community(community_id, name, introduction) 
 				values(?,?,?)`
 

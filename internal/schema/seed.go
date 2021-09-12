@@ -9,10 +9,10 @@ INSERT INTO posts (post_id, title, content, author_id, community_id) VALUES
 	(1, 'one go question', 'test content', 1, 1),
 	(2, 'two go question', 'test content 2', 2, 2)
 
-INSERT INTO community (community_id, name, introduction) VALUES
-(1, 'Go community', 'Go lover place'),
-(2, 'Python community', 'test content')
-
+	INSERT INTO community (community_id, name, introduction) VALUES
+	(1, 'Go community', 'Go lover place'),
+	(2, 'Python community', 'test content')
+	
 `
 
 //TODO

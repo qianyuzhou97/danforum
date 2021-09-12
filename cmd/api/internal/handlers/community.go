@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"context"
 	"net/http"
 
 	"github.com/go-chi/chi"
@@ -16,36 +17,36 @@ type CommunityService struct {
 	sugar *zap.SugaredLogger
 }
 
-func (c *CommunityService) ListAll(w http.ResponseWriter, r *http.Request) error {
+func (c *CommunityService) ListAll(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
 
-	list, err := community.ListAll(r.Context(), c.db)
+	list, err := community.ListAll(ctx, c.db)
 
 	if err != nil {
 		return errors.Wrap(err, "error: selecting community")
 	}
 
-	return web.Respond(w, list, http.StatusOK)
+	return web.Respond(ctx, w, list, http.StatusOK)
 }
 
-func (c *CommunityService) GetCommunityByID(w http.ResponseWriter, r *http.Request) error {
+func (c *CommunityService) GetByID(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
 	id := chi.URLParam(r, "id")
 
-	list, err := community.GetByID(r.Context(), c.db, id)
+	list, err := community.GetByID(ctx, c.db, id)
 
 	if err != nil {
 		return errors.Wrap(err, "error: get community by ID")
 	}
 
-	return web.Respond(w, list, http.StatusOK)
+	return web.Respond(ctx, w, list, http.StatusOK)
 }
 
-func (c *CommunityService) CreateCommunity(w http.ResponseWriter, r *http.Request) error {
+func (c *CommunityService) Create(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
 	var nc community.NewCommunity
 	if err := web.Decode(r, &nc); err != nil {
 		return errors.Wrap(err, "error decoding community")
 	}
 
-	if err := community.CreateNewCommunity(r.Context(), c.db, nc); err != nil {
+	if err := community.Create(ctx, c.db, nc); err != nil {
 		return errors.Wrap(err, "error creating community")
 	}
 	return nil

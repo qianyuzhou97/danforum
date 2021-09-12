@@ -2,7 +2,6 @@ package post
 
 import (
 	"context"
-	"strconv"
 
 	"github.com/jmoiron/sqlx"
 	"github.com/pkg/errors"
@@ -19,7 +18,7 @@ func ListAll(ctx context.Context, db *sqlx.DB) ([]Post, error) {
 	return post, nil
 }
 
-func GetByID(ctx context.Context, db *sqlx.DB, postID string) (*Post, error) {
+func GetByID(ctx context.Context, db *sqlx.DB, postID int64) (*Post, error) {
 	var p Post
 
 	const q = `SELECT * FROM posts WHERE post_id = ?`
@@ -41,7 +40,7 @@ func CreateNewPost(ctx context.Context, db *sqlx.DB, np NewPost) error {
 }
 
 func UpdateByID(ctx context.Context, db *sqlx.DB, up UpdatePost) error {
-	p, err := GetByID(ctx, db, strconv.Itoa(up.ID))
+	p, err := GetByID(ctx, db, up.ID)
 	if err != nil {
 		return err
 	}
