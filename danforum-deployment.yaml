@@ -1,0 +1,40 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: danforum
+spec:
+  ports:
+  - port: 8000
+  selector:
+    app: danforum
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: danforum
+spec:
+  selector:
+    matchLabels:
+      app: danforum
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: danforum
+    spec:
+      containers:
+      - image: danforum:0.1
+        name: danforum
+        env:
+        - name: USERNAME
+          value: "root"
+        - name: PASSWORD
+          value: "root"
+        - name: DBNAME
+          value: "danforum"
+        - name: ADDR
+          value: ":8000"
+        ports:
+        - containerPort: 8000
+          name: danforum

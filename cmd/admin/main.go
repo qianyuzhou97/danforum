@@ -11,6 +11,10 @@ import (
 	"go.uber.org/zap"
 )
 
+var username = flag.String("username", "root", "username for MySQL")
+var password = flag.String("password", "root", "password for MySQL")
+var dbName = flag.String("dbname", "danforum", "database used in MySQL")
+
 func main() {
 	//initialize zap logger
 	logger, err := zap.NewDevelopment()
@@ -19,7 +23,7 @@ func main() {
 	}
 	defer logger.Sync()
 	sugar := logger.Sugar()
-	
+
 	if err := run(sugar); err != nil {
 		sugar.Fatal("shutting down", "error:", err)
 	}
@@ -31,7 +35,7 @@ func run(sugar *zap.SugaredLogger) error {
 	defer sugar.Info("main : Completed")
 
 	//database
-	db, err := database.Open()
+	db, err := database.Open(*username, *password, *dbName)
 	if err != nil {
 		return errors.Wrap(err, "connecting to database")
 	}

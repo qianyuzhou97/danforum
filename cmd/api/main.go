@@ -10,14 +10,22 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/namsral/flag"
 	"github.com/pkg/errors"
 	"github.com/qianyuzhou97/danforum/cmd/api/internal/handlers"
 	"github.com/qianyuzhou97/danforum/internal/platform/database"
 	"github.com/qianyuzhou97/danforum/internal/platform/snowflake"
+	"github.com/qianyuzhou97/danforum/internal/schema"
 	"go.uber.org/zap"
 )
 
+var username = flag.String("username", "root", "username for MySQL")
+var password = flag.String("password", "root", "password for MySQL")
+var dbName = flag.String("dbname", "danforum", "database used in MySQL")
+var addr = flag.String("addr", ":8000", "open port for service")
+
 func main() {
+	flag.Parse()
 	//initialize zap logger
 	logger, err := zap.NewDevelopment()
 	if err != nil {
@@ -41,14 +49,19 @@ func run(sugar *zap.SugaredLogger) error {
 	}
 
 	//database
-	db, err := database.Open()
+	db, err := database.Open(*username, *password, *dbName)
 	if err != nil {
 		return errors.Wrap(err, "connecting to database")
 	}
 	defer db.Close()
 
+	if err := schema.Migrate(db); err != nil {
+		return errors.Wrap(err, "error applying migrations")
+	}
+	sugar.Info("Migrations complete")
+
 	api := http.Server{
-		Addr:         "localhost:8000",
+		Addr:         *addr,
 		Handler:      handlers.API(db, sugar),
 		ReadTimeout:  5 * time.Second,
 		WriteTimeout: 5 * time.Second,
