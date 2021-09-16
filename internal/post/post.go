@@ -5,6 +5,7 @@ import (
 
 	"github.com/jmoiron/sqlx"
 	"github.com/pkg/errors"
+	"github.com/qianyuzhou97/danforum/internal/platform/auth"
 )
 
 func ListAll(ctx context.Context, db *sqlx.DB) ([]Post, error) {
@@ -30,10 +31,14 @@ func GetByID(ctx context.Context, db *sqlx.DB, postID int64) (*Post, error) {
 }
 
 func CreateNewPost(ctx context.Context, db *sqlx.DB, np NewPost) error {
+	claims, ok := ctx.Value(auth.Key).(auth.Claims)
+	if !ok {
+		return errors.New("claims missing from context")
+	}
 	const q = `insert into posts(post_id, title, content, author_id, community_id) 
 				values(?,?,?,?,?)`
 
-	if _, err := db.ExecContext(ctx, q, np.ID, np.Title, np.Content, np.Author, np.Community); err != nil {
+	if _, err := db.ExecContext(ctx, q, np.ID, np.Title, np.Content, claims.Username, 1); err != nil {
 		return errors.Wrap(err, "error get posts based on post_id")
 	}
 	return nil
