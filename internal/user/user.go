@@ -3,6 +3,7 @@ package user
 import (
 	"context"
 	"crypto/md5"
+	"database/sql"
 	"encoding/hex"
 
 	"github.com/jmoiron/sqlx"
@@ -11,6 +12,12 @@ import (
 )
 
 const secret = "dan"
+
+var (
+	// ErrAuthenticationFailure occurs when a user attempts to authenticate but
+	// anything goes wrong.
+	ErrAuthenticationFailure = errors.New("Authentication failed")
+)
 
 func encryptPassword(oPassword string) string {
 	h := md5.New()
@@ -28,6 +35,32 @@ func Create(ctx context.Context, db *sqlx.DB, n NewUser) error {
 		ctx, q, snowflake.GenID(), n.Username, encryptPassword(n.Password), n.Email)
 	if err != nil {
 		return errors.Wrap(err, "inserting user")
+	}
+
+	return nil
+}
+
+func Authenticate(ctx context.Context, db *sqlx.DB, username, password string) error {
+
+	const q = `SELECT * FROM user WHERE username = ?`
+
+	var u User
+	if err := db.GetContext(ctx, &u, q, username); err != nil {
+
+		// Normally we would return ErrNotFound in this scenario but we do not want
+		// to leak to an unauthenticated user which emails are in the system.
+		if err == sql.ErrNoRows {
+			return ErrAuthenticationFailure
+		}
+
+		return errors.Wrap(err, "selecting single user")
+	}
+
+	// Compare the provided password with the saved hash. Use the bcrypt
+	// comparison function so it is cryptographically secure.
+	encrypted := encryptPassword(password)
+	if encrypted != u.Password {
+		return ErrAuthenticationFailure
 	}
 
 	return nil

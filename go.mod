@@ -14,6 +14,7 @@ require (
 	github.com/namsral/flag v1.7.4-pre
 	github.com/pkg/errors v0.9.1
 	go.uber.org/zap v1.19.1
+	golang.org/x/crypto v0.0.0-20191011191535-87dc89f01550
 	gopkg.in/go-playground/validator.v9 v9.31.0
 )
 

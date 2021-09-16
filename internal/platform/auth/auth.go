@@ -1,96 +1,58 @@
 package auth
 
 import (
-	"crypto/rsa"
-	"fmt"
+	"errors"
+	"time"
 
 	jwt "github.com/dgrijalva/jwt-go"
-	"github.com/pkg/errors"
 )
+// ctxKey represents the type of value for the context key.
+type ctxKey int
 
-// KeyLookupFunc is used to map a JWT key id (kid) to the corresponding public key.
-// It is a requirement for creating an Authenticator.
-//
-// * Private keys should be rotated. During the transition period, tokens
-// signed with the old and new keys can coexist by looking up the correct
-// public key by key id (kid).
-//
-// * Key-id-to-public-key resolution is usually accomplished via a public JWKS
-// endpoint. See https://auth0.com/docs/jwks for more details.
-type KeyLookupFunc func(kid string) (*rsa.PublicKey, error)
+// Key is used to store/retrieve a Claims value from a context.Context.
+const Key ctxKey = 1
 
-// NewSimpleKeyLookupFunc is a simple implementation of KeyFunc that only ever
-// supports one key. This is easy for development but in production should be
-// replaced with a caching layer that calls a JWKS endpoint.
-func NewSimpleKeyLookupFunc(activeKID string, publicKey *rsa.PublicKey) KeyLookupFunc {
-	f := func(kid string) (*rsa.PublicKey, error) {
-		if activeKID != kid {
-			return nil, fmt.Errorf("unrecognized key id %q", kid)
-		}
-		return publicKey, nil
-	}
+var mySecret = []byte("夏天夏天悄悄过去")
 
-	return f
+// MyClaims 自定义声明结构体并内嵌jwt.StandardClaims
+// jwt包自带的jwt.StandardClaims只包含了官方字段
+// 我们这里需要额外记录一个username字段，所以要自定义结构体
+// 如果想要保存更多信息，都可以添加到这个结构体中
+type Claims struct {
+	// UserID   int64  `json:"user_id"`
+	Username string `json:"username"`
+	jwt.StandardClaims
 }
 
-// Authenticator is used to authenticate clients. It can generate a token for a
-// set of user claims and recreate the claims by parsing the token.
-type Authenticator struct {
-	privateKey       *rsa.PrivateKey
-	activeKID        string
-	algorithm        string
-	pubKeyLookupFunc KeyLookupFunc
-	parser           *jwt.Parser
+// GenToken 生成JWT
+func GenToken(username string, now time.Time, expires time.Duration) (string, error) {
+	// 创建一个我们自己的声明的数据
+	c := Claims{
+		// UserID:   userID,
+		Username: username,
+		StandardClaims: jwt.StandardClaims{
+			IssuedAt:  now.Unix(),
+			ExpiresAt: now.Add(expires).Unix(),
+		},
+	}
+	// 使用指定的签名方法创建签名对象
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, c)
+	// 使用指定的secret签名并获得完整的编码后的字符串token
+	return token.SignedString(mySecret)
 }
 
-// NewAuthenticator creates an *Authenticator for use. It will error if:
-// - The private key is nil.
-// - The public key func is nil.
-// - The key ID is blank.
-// - The specified algorithm is unsupported.
-func NewAuthenticator(privateKey *rsa.PrivateKey, activeKID, algorithm string, publicKeyLookupFunc KeyLookupFunc) (*Authenticator, error) {
-	if privateKey == nil {
-		return nil, errors.New("private key cannot be nil")
-	}
-	if activeKID == "" {
-		return nil, errors.New("active kid cannot be blank")
-	}
-	if jwt.GetSigningMethod(algorithm) == nil {
-		return nil, errors.Errorf("unknown algorithm %v", algorithm)
-	}
-	if publicKeyLookupFunc == nil {
-		return nil, errors.New("public key function cannot be nil")
-	}
-
-	// Create the token parser to use. The algorithm used to sign the JWT must be
-	// validated to avoid a critical vulnerability:
-	// https://auth0.com/blog/critical-vulnerabilities-in-json-web-token-libraries/
-	parser := jwt.Parser{
-		ValidMethods: []string{algorithm},
-	}
-
-	a := Authenticator{
-		privateKey:       privateKey,
-		activeKID:        activeKID,
-		algorithm:        algorithm,
-		pubKeyLookupFunc: publicKeyLookupFunc,
-		parser:           &parser,
-	}
-
-	return &a, nil
-}
-
-// GenerateToken generates a signed JWT token string representing the user Claims.
-func (a *Authenticator) GenerateToken(claims Claims) (string, error) {
-	method := jwt.GetSigningMethod(a.algorithm)
-
-	tkn := jwt.NewWithClaims(method, claims)
-	tkn.Header["kid"] = a.activeKID
-
-	str, err := tkn.SignedString(a.privateKey)
+// ParseToken 解析JWT
+func ParseToken(tokenString string) (*Claims, error) {
+	// 解析token
+	var mc = new(Claims)
+	token, err := jwt.ParseWithClaims(tokenString, mc, func(token *jwt.Token) (i interface{}, err error) {
+		return mySecret, nil
+	})
 	if err != nil {
-		return "", errors.Wrap(err, "signing token")
+		return nil, err
 	}
-
-	return str, nil
+	if token.Valid { // 校验token
+		return mc, nil
+	}
+	return nil, errors.New("invalid token")
 }

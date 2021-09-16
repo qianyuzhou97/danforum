@@ -18,7 +18,7 @@ func API(db *sqlx.DB, sugar *zap.SugaredLogger) http.Handler {
 	c := CommunityService{db: db, sugar: sugar}
 	u := UserService{db: db, sugar: sugar}
 
-	app.Handle(http.MethodGet, "/v1/posts", p.ListAll)
+	app.Handle(http.MethodGet, "/v1/posts", p.ListAll, mid.Authenticate())
 	app.Handle(http.MethodPost, "/v1/posts", p.Create)
 	app.Handle(http.MethodGet, "/v1/posts/{id}", p.GetByID)
 	app.Handle(http.MethodPut, "/v1/posts/{id}", p.UpdateByID)
@@ -29,6 +29,7 @@ func API(db *sqlx.DB, sugar *zap.SugaredLogger) http.Handler {
 	app.Handle(http.MethodGet, "/v1/community/{id}", c.GetByID)
 
 	app.Handle(http.MethodPut, "/v1/user", u.Create)
+	app.Handle(http.MethodGet, "/v1/user/token", u.Token)
 
 	return app
 }
