@@ -1,39 +1,38 @@
-package community
+package database
 
 import (
 	"context"
 
-	"github.com/jmoiron/sqlx"
 	"github.com/pkg/errors"
 )
 
-func ListAll(ctx context.Context, db *sqlx.DB) ([]Community, error) {
+func (d *DB) ListAllCommunity(ctx context.Context) ([]Community, error) {
 	community := []Community{}
 
 	const q = `SELECT * FROM community`
 
-	if err := db.SelectContext(ctx, &community, q); err != nil {
+	if err := d.DB.SelectContext(ctx, &community, q); err != nil {
 		return nil, errors.Wrap(err, "selecting community")
 	}
 	return community, nil
 }
 
-func GetByID(ctx context.Context, db *sqlx.DB, communityID string) (*Community, error) {
+func (d *DB) GetCommunityByID(ctx context.Context, communityID string) (*Community, error) {
 	var p Community
 
 	const q = `SELECT * FROM community WHERE community_id = ?`
 
-	if err := db.GetContext(ctx, &p, q, communityID); err != nil {
+	if err := d.DB.GetContext(ctx, &p, q, communityID); err != nil {
 		return nil, errors.Wrap(err, "error get community based on community_id")
 	}
 	return &p, nil
 }
 
-func Create(ctx context.Context, db *sqlx.DB, nc NewCommunity) error {
+func (d *DB) CreateCommunity(ctx context.Context, nc NewCommunity) error {
 	const q = `insert into community(community_id, name, introduction) 
 				values(?,?,?)`
 
-	if _, err := db.ExecContext(ctx, q, nc.ID, nc.Name, nc.Introduction); err != nil {
+	if _, err := d.DB.ExecContext(ctx, q, nc.ID, nc.Name, nc.Introduction); err != nil {
 		return errors.Wrap(err, "error get community based on community_id")
 	}
 	return nil

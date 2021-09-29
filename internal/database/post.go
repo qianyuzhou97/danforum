@@ -1,36 +1,35 @@
-package post
+package database
 
 import (
 	"context"
 
-	"github.com/jmoiron/sqlx"
 	"github.com/pkg/errors"
 	"github.com/qianyuzhou97/danforum/internal/platform/auth"
 )
 
-func ListAll(ctx context.Context, db *sqlx.DB) ([]Post, error) {
+func (d *DB) ListAllPosts(ctx context.Context) ([]Post, error) {
 	post := []Post{}
 
 	const q = `SELECT * FROM posts`
 
-	if err := db.SelectContext(ctx, &post, q); err != nil {
+	if err := d.DB.SelectContext(ctx, &post, q); err != nil {
 		return nil, errors.Wrap(err, "selecting posts")
 	}
 	return post, nil
 }
 
-func GetByID(ctx context.Context, db *sqlx.DB, postID int64) (*Post, error) {
+func (d *DB) GetPostByID(ctx context.Context, postID int64) (*Post, error) {
 	var p Post
 
 	const q = `SELECT * FROM posts WHERE post_id = ?`
 
-	if err := db.GetContext(ctx, &p, q, postID); err != nil {
+	if err := d.DB.GetContext(ctx, &p, q, postID); err != nil {
 		return nil, errors.Wrap(err, "error get posts based on post_id")
 	}
 	return &p, nil
 }
 
-func CreateNewPost(ctx context.Context, db *sqlx.DB, np NewPost) error {
+func (d *DB) CreatePost(ctx context.Context, np NewPost) error {
 	claims, ok := ctx.Value(auth.Key).(auth.Claims)
 	if !ok {
 		return errors.New("claims missing from context")
@@ -38,14 +37,14 @@ func CreateNewPost(ctx context.Context, db *sqlx.DB, np NewPost) error {
 	const q = `insert into posts(post_id, title, content, author_id, community_id) 
 				values(?,?,?,?,?)`
 
-	if _, err := db.ExecContext(ctx, q, np.ID, np.Title, np.Content, claims.Username, 1); err != nil {
+	if _, err := d.DB.ExecContext(ctx, q, np.ID, np.Title, np.Content, claims.Username, 1); err != nil {
 		return errors.Wrap(err, "error get posts based on post_id")
 	}
 	return nil
 }
 
-func UpdateByID(ctx context.Context, db *sqlx.DB, up UpdatePost) error {
-	p, err := GetByID(ctx, db, up.ID)
+func (d *DB) UpdatePostByID(ctx context.Context, up UpdatePost) error {
+	p, err := d.GetPostByID(ctx, up.ID)
 	if err != nil {
 		return err
 	}
@@ -59,17 +58,17 @@ func UpdateByID(ctx context.Context, db *sqlx.DB, up UpdatePost) error {
 	}
 
 	const q = `update posts set title = ?,content = ? where post_id = ?`
-	if _, err = db.ExecContext(ctx, q, p.Title, p.Content, p.ID); err != nil {
+	if _, err = d.DB.ExecContext(ctx, q, p.Title, p.Content, p.ID); err != nil {
 		return errors.Wrap(err, "updating post")
 	}
 	return nil
 }
 
-func DeleteByID(ctx context.Context, db *sqlx.DB, postID string) error {
+func (d *DB) DeletePostByID(ctx context.Context, postID string) error {
 
 	const q = `DELETE FROM posts WHERE post_id = ?`
 
-	if _, err := db.ExecContext(ctx, q, postID); err != nil {
+	if _, err := d.DB.ExecContext(ctx, q, postID); err != nil {
 		return errors.Wrapf(err, "deleting post %s", postID)
 	}
 

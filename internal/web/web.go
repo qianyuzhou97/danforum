@@ -6,10 +6,12 @@ import (
 	"time"
 
 	"github.com/go-chi/chi"
+	"github.com/qianyuzhou97/danforum/internal/database"
 	"go.uber.org/zap"
 )
 
-type App struct {
+type Server struct {
+	DB    database.Store
 	sugar *zap.SugaredLogger
 	mux   *chi.Mux
 	mw    []Middleware
@@ -29,21 +31,21 @@ type Values struct {
 
 type Handler func(ctx context.Context, w http.ResponseWriter, r *http.Request) error
 
-func NewApp(sugar *zap.SugaredLogger, mw ...Middleware) *App {
-	return &App{
+func NewServer(sugar *zap.SugaredLogger, mw ...Middleware) *Server {
+	return &Server{
 		sugar: sugar,
 		mux:   chi.NewRouter(),
 		mw:    mw,
 	}
 }
 
-func (a *App) Handle(method, url string, h Handler, mw ...Middleware) {
+func (s *Server) Handle(method, url string, h Handler, mw ...Middleware) {
 
 	// First wrap handler specific middleware around this handler.
 	h = wrapMiddleware(mw, h)
 
 	// Add the application's general middleware to the handler chain.
-	h = wrapMiddleware(a.mw, h)
+	h = wrapMiddleware(s.mw, h)
 
 	fn := func(w http.ResponseWriter, r *http.Request) {
 
@@ -57,13 +59,13 @@ func (a *App) Handle(method, url string, h Handler, mw ...Middleware) {
 
 		if err != nil {
 			// Log the error.
-			a.sugar.Error(err)
+			s.sugar.Error(err)
 		}
 	}
 
-	a.mux.MethodFunc(method, url, fn)
+	s.mux.MethodFunc(method, url, fn)
 }
 
-func (a *App) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	a.mux.ServeHTTP(w, r)
+func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	s.mux.ServeHTTP(w, r)
 }

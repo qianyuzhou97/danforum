@@ -1,4 +1,4 @@
-package user
+package database
 
 import (
 	"context"
@@ -6,7 +6,6 @@ import (
 	"database/sql"
 	"encoding/hex"
 
-	"github.com/jmoiron/sqlx"
 	"github.com/pkg/errors"
 	"github.com/qianyuzhou97/danforum/internal/platform/snowflake"
 )
@@ -26,12 +25,12 @@ func encryptPassword(oPassword string) string {
 }
 
 // Create inserts a new user into the database.
-func Create(ctx context.Context, db *sqlx.DB, n NewUser) error {
+func (d *DB) CreateUser(ctx context.Context, n NewUser) error {
 
 	const q = `INSERT INTO user
 		(user_id, username, password, email)
 		VALUES (?,?,?,?)`
-	_, err := db.ExecContext(
+	_, err := d.DB.ExecContext(
 		ctx, q, snowflake.GenID(), n.Username, encryptPassword(n.Password), n.Email)
 	if err != nil {
 		return errors.Wrap(err, "inserting user")
@@ -40,12 +39,12 @@ func Create(ctx context.Context, db *sqlx.DB, n NewUser) error {
 	return nil
 }
 
-func Authenticate(ctx context.Context, db *sqlx.DB, username, password string) error {
+func (d *DB) Authenticate(ctx context.Context, username, password string) error {
 
 	const q = `SELECT * FROM user WHERE username = ?`
 
 	var u User
-	if err := db.GetContext(ctx, &u, q, username); err != nil {
+	if err := d.DB.GetContext(ctx, &u, q, username); err != nil {
 
 		// Normally we would return ErrNotFound in this scenario but we do not want
 		// to leak to an unauthenticated user which emails are in the system.
