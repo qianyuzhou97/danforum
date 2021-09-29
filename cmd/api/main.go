@@ -19,10 +19,13 @@ import (
 	"go.uber.org/zap"
 )
 
-var username = flag.String("username", "root", "username for MySQL")
-var password = flag.String("password", "root", "password for MySQL")
-var dbName = flag.String("dbname", "danforum", "database used in MySQL")
-var addr = flag.String("addr", ":8000", "open port for service")
+// Variables that should be set based on environment variables from Kuberentes
+var (
+	username = flag.String("username", "root", "username for MySQL")
+	password = flag.String("password", "root", "password for MySQL")
+	dbName   = flag.String("dbname", "danforum", "database used in MySQL")
+	addr     = flag.String("addr", ":8000", "open port for service")
+)
 
 func main() {
 	flag.Parse()
@@ -48,7 +51,7 @@ func run(sugar *zap.SugaredLogger) error {
 		return errors.Wrapf(err, "init snowflake failed")
 	}
 
-	//database
+	// MySQL database set up
 	db, err := database.Open(*username, *password, *dbName)
 	if err != nil {
 		return errors.Wrap(err, "connecting to database")

@@ -11,9 +11,12 @@ import (
 	"go.uber.org/zap"
 )
 
-var username = flag.String("username", "root", "username for MySQL")
-var password = flag.String("password", "root", "password for MySQL")
-var dbName = flag.String("dbname", "danforum", "database used in MySQL")
+// Variables that should be set based on environment variables from Kuberentes
+var (
+	username = flag.String("username", "root", "username for MySQL")
+	password = flag.String("password", "root", "password for MySQL")
+	dbName   = flag.String("dbname", "danforum", "database used in MySQL")
+)
 
 func main() {
 	//initialize zap logger
@@ -34,7 +37,7 @@ func run(sugar *zap.SugaredLogger) error {
 	sugar.Info("main : Started")
 	defer sugar.Info("main : Completed")
 
-	//database
+	// MySQL database set up
 	db, err := database.Open(*username, *password, *dbName)
 	if err != nil {
 		return errors.Wrap(err, "connecting to database")
@@ -57,5 +60,4 @@ func run(sugar *zap.SugaredLogger) error {
 		sugar.Info("Seed data complete")
 	}
 	return nil
-
 }
