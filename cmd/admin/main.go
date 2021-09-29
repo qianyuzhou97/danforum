@@ -6,7 +6,7 @@ import (
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/pkg/errors"
-	"github.com/qianyuzhou97/danforum/internal/platform/database"
+	"github.com/qianyuzhou97/danforum/internal/database"
 	"github.com/qianyuzhou97/danforum/internal/schema"
 	"go.uber.org/zap"
 )

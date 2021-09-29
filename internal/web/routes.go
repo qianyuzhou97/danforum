@@ -11,6 +11,7 @@ func (s *Server) routes() {
 	// p := PostService{db: db}
 	// c := CommunityService{db: db}
 	// u := UserService{db: db}
+	s.mw = []Middleware{Logger(s.sugar), Errors(s.sugar), Metrics()}
 
 	s.Handle(http.MethodGet, "/v1/posts", s.ListAllPosts, Authenticate())
 	s.Handle(http.MethodPost, "/v1/posts", s.CreatePost)
