@@ -13,8 +13,8 @@ import (
 	"github.com/namsral/flag"
 	"github.com/pkg/errors"
 	"github.com/qianyuzhou97/danforum/internal/database"
-	"github.com/qianyuzhou97/danforum/internal/platform/snowflake"
 	"github.com/qianyuzhou97/danforum/internal/schema"
+	"github.com/qianyuzhou97/danforum/internal/util/snowflake"
 	"github.com/qianyuzhou97/danforum/internal/web"
 	"go.uber.org/zap"
 )
@@ -65,7 +65,7 @@ func run(sugar *zap.SugaredLogger) error {
 
 	api := http.Server{
 		Addr:         *addr,
-		Handler:      web.NewServer().SetLogger(sugar).SetDB(&database.DB{DB: db}).SetRoutes(),
+		Handler:      web.NewServer().SetLogger(sugar).SetDB(&database.DB{DB: db}).SetRoutes(false),
 		ReadTimeout:  5 * time.Second,
 		WriteTimeout: 5 * time.Second,
 	}

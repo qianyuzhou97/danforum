@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/pkg/errors"
+	"github.com/qianyuzhou97/danforum/internal/util/snowflake"
 )
 
 func (d *DB) ListAllCommunity(ctx context.Context) ([]Community, error) {
@@ -32,7 +33,7 @@ func (d *DB) CreateCommunity(ctx context.Context, nc NewCommunity) error {
 	const q = `insert into community(community_id, name, introduction) 
 				values(?,?,?)`
 
-	if _, err := d.DB.ExecContext(ctx, q, nc.ID, nc.Name, nc.Introduction); err != nil {
+	if _, err := d.DB.ExecContext(ctx, q, snowflake.GenID(), nc.Name, nc.Introduction); err != nil {
 		return errors.Wrap(err, "error get community based on community_id")
 	}
 	return nil

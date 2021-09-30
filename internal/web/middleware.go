@@ -9,7 +9,7 @@ import (
 	"time"
 
 	"github.com/pkg/errors"
-	"github.com/qianyuzhou97/danforum/internal/platform/auth"
+	"github.com/qianyuzhou97/danforum/internal/util/auth"
 	"go.uber.org/zap"
 )
 

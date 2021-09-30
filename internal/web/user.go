@@ -7,7 +7,7 @@ import (
 
 	"github.com/pkg/errors"
 	"github.com/qianyuzhou97/danforum/internal/database"
-	"github.com/qianyuzhou97/danforum/internal/platform/auth"
+	"github.com/qianyuzhou97/danforum/internal/util/auth"
 )
 
 // type UserService struct {

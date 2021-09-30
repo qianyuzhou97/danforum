@@ -3,7 +3,7 @@ package database
 import "time"
 
 type Community struct {
-	ID           int64       `db:"community_id" json:"id"`
+	ID           int64     `db:"community_id" json:"id"`
 	Name         string    `db:"name" json:"name"`
 	Introduction string    `db:"introduction" json:"introduction"`
 	Create_time  time.Time `db:"create_time" json:"create_time"`
@@ -11,7 +11,7 @@ type Community struct {
 }
 
 type NewCommunity struct {
-	ID           int64    `json:"id" validate:"required"`
+	// ID           int64    `json:"id" validate:"required"`
 	Name         string `json:"name" validate:"required"`
 	Introduction string `json:"introduction" validate:"required"`
 }
@@ -27,7 +27,7 @@ type Post struct {
 }
 
 type NewPost struct {
-	ID      int64  `db:"post_id" json:"id" validate:"required"`
+	// ID      int64  `db:"post_id" json:"id" validate:"required"`
 	Title   string `db:"title" json:"title" validate:"required"`
 	Content string `db:"content" json:"content" validate:"required"`
 	Author  int64  `db:"author_id" json:"author_id" validate:"omitempty"`
@@ -55,6 +55,3 @@ type NewUser struct {
 	PasswordConfirm string `json:"password_confirm" validate:"eqfield=Password"`
 	Email           string `json:"email" validate:"required"`
 }
-
-
-

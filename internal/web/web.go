@@ -35,10 +35,10 @@ func NewServer() *Server {
 	return &Server{mux: chi.NewRouter()}
 }
 
-func (s *Server) SetRoutes() *Server {
-	s.routes()
-	return s
-}
+// func (s *Server) SetRoutes(test bool) *Server {
+// 	s.routes()
+// 	return s
+// }
 
 func (s *Server) SetLogger(sugar *zap.SugaredLogger) *Server {
 	s.sugar = sugar

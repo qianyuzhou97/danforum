@@ -7,7 +7,7 @@ import (
 	"encoding/hex"
 
 	"github.com/pkg/errors"
-	"github.com/qianyuzhou97/danforum/internal/platform/snowflake"
+	"github.com/qianyuzhou97/danforum/internal/util/snowflake"
 )
 
 const secret = "dan"

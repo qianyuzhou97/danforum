@@ -4,7 +4,8 @@ import (
 	"context"
 
 	"github.com/pkg/errors"
-	"github.com/qianyuzhou97/danforum/internal/platform/auth"
+	"github.com/qianyuzhou97/danforum/internal/util/auth"
+	"github.com/qianyuzhou97/danforum/internal/util/snowflake"
 )
 
 func (d *DB) ListAllPosts(ctx context.Context) ([]Post, error) {
@@ -37,7 +38,7 @@ func (d *DB) CreatePost(ctx context.Context, np NewPost) error {
 	const q = `insert into posts(post_id, title, content, author_id, community_id) 
 				values(?,?,?,?,?)`
 
-	if _, err := d.DB.ExecContext(ctx, q, np.ID, np.Title, np.Content, claims.Username, 1); err != nil {
+	if _, err := d.DB.ExecContext(ctx, q, snowflake.GenID(), np.Title, np.Content, claims.Username, 1); err != nil {
 		return errors.Wrap(err, "error get posts based on post_id")
 	}
 	return nil
