@@ -32,13 +32,21 @@ type Values struct {
 type Handler func(ctx context.Context, w http.ResponseWriter, r *http.Request) error
 
 func NewServer() *Server {
-	s := Server{mux: chi.NewRouter()}
+	return &Server{mux: chi.NewRouter()}
+}
+
+func (s *Server) SetRoutes() *Server {
 	s.routes()
-	return &s
+	return s
 }
 
 func (s *Server) SetLogger(sugar *zap.SugaredLogger) *Server {
 	s.sugar = sugar
+	return s
+}
+
+func (s *Server) SetDB(DB database.Store) *Server {
+	s.DB = DB
 	return s
 }
 

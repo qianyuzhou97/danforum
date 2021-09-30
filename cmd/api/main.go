@@ -65,7 +65,7 @@ func run(sugar *zap.SugaredLogger) error {
 
 	api := http.Server{
 		Addr:         *addr,
-		Handler:      web.NewServer().SetLogger(sugar),
+		Handler:      web.NewServer().SetLogger(sugar).SetDB(&database.DB{DB: db}).SetRoutes(),
 		ReadTimeout:  5 * time.Second,
 		WriteTimeout: 5 * time.Second,
 	}
