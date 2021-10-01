@@ -66,12 +66,12 @@ func (s *Server) Handle(method, url string, h Handler, mw ...Middleware) {
 		ctx := context.WithValue(r.Context(), KeyValues, &v)
 
 		// Call the handler and catch any propagated error.
-		err := h(ctx, w, r)
+		h(ctx, w, r)
 
-		if err != nil {
-			// Log the error.
-			s.sugar.Error(err)
-		}
+		// if err != nil {
+		// 	// Log the error.
+		// 	s.sugar.Error(err)
+		// }
 	}
 
 	s.mux.MethodFunc(method, url, fn)

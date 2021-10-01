@@ -112,6 +112,35 @@ func Errors(sugar *zap.SugaredLogger) Middleware {
 	return f
 }
 
+func ErrorsForTest() Middleware {
+
+	// This is the actual middleware function to be executed.
+	f := func(before Handler) Handler {
+
+		h := func(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
+
+			// Run the handler chain and catch any propagated error.
+			if err := before(ctx, w, r); err != nil {
+
+				// // Log the error.
+				// sugar.Error(err)
+
+				// Respond to the error.
+				if err := RespondError(ctx, w, err); err != nil {
+					return err
+				}
+			}
+
+			// Return nil to indicate the error has been handled.
+			return nil
+		}
+
+		return h
+	}
+
+	return f
+}
+
 // Logger writes some information about the request to the logs in the
 // format: (200) GET /foo -> IP ADDR (latency)
 func Logger(sugar *zap.SugaredLogger) Middleware {

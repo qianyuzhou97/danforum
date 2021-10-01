@@ -28,13 +28,13 @@ func (s *Server) ListAllCommunity(ctx context.Context, w http.ResponseWriter, r 
 func (s *Server) GetCommunityByID(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
 	id := chi.URLParam(r, "id")
 
-	list, err := s.DB.GetCommunityByID(ctx, id)
+	community, err := s.DB.GetCommunityByID(ctx, id)
 
 	if err != nil {
 		return errors.Wrap(err, "error: get community by ID")
 	}
 
-	return Respond(ctx, w, list, http.StatusOK)
+	return Respond(ctx, w, community, http.StatusOK)
 }
 
 func (s *Server) CreateCommunity(ctx context.Context, w http.ResponseWriter, r *http.Request) error {

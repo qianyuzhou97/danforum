@@ -13,6 +13,8 @@ func (s *Server) SetRoutes(test bool) *Server {
 	// u := UserService{db: db}
 	if !test {
 		s.mw = []Middleware{Logger(s.sugar), Errors(s.sugar), Metrics()}
+	} else {
+		s.mw = []Middleware{ErrorsForTest()}
 	}
 
 	s.Handle(http.MethodGet, "/posts", s.ListAllPosts, Authenticate())
