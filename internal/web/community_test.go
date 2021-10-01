@@ -8,7 +8,6 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
-	"strconv"
 	"testing"
 
 	"github.com/golang/mock/gomock"
@@ -109,7 +108,7 @@ func TestGetCommunityByID(t *testing.T) {
 			communityID: 1234,
 			mock: func(m *mockdb.MockStore) {
 				m.EXPECT().
-					GetCommunityByID(gomock.Any(), strconv.Itoa(1234)).
+					GetCommunityByID(gomock.Any(), int64(1234)).
 					Times(1).
 					Return(&communities[0], nil)
 			},
@@ -123,7 +122,7 @@ func TestGetCommunityByID(t *testing.T) {
 			communityID: 12,
 			mock: func(m *mockdb.MockStore) {
 				m.EXPECT().
-					GetCommunityByID(gomock.Any(), strconv.Itoa(12)).
+					GetCommunityByID(gomock.Any(), int64(12)).
 					Times(1).
 					Return(nil, sql.ErrNoRows)
 			},
@@ -245,12 +244,12 @@ func requireBodyMatchCommunities(t *testing.T, body *bytes.Buffer, communities [
 	require.Equal(t, communities, got)
 }
 
-func requireBodyMatchCommunity(t *testing.T, body *bytes.Buffer, communities database.Community) {
+func requireBodyMatchCommunity(t *testing.T, body *bytes.Buffer, community database.Community) {
 	data, err := ioutil.ReadAll(body)
 	require.NoError(t, err)
 
 	var got database.Community
 	err = json.Unmarshal(data, &got)
 	require.NoError(t, err)
-	require.Equal(t, communities, got)
+	require.Equal(t, community, got)
 }

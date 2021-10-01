@@ -3,11 +3,11 @@ package web
 import (
 	"context"
 	"net/http"
+	"strconv"
 
 	"github.com/go-chi/chi"
 	"github.com/pkg/errors"
 	"github.com/qianyuzhou97/danforum/internal/database"
-
 )
 
 // type CommunityService struct {
@@ -26,7 +26,7 @@ func (s *Server) ListAllCommunity(ctx context.Context, w http.ResponseWriter, r 
 }
 
 func (s *Server) GetCommunityByID(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
-	id := chi.URLParam(r, "id")
+	id, _ := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
 
 	community, err := s.DB.GetCommunityByID(ctx, id)
 

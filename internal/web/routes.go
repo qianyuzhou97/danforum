@@ -17,7 +17,8 @@ func (s *Server) SetRoutes(test bool) *Server {
 		s.mw = []Middleware{ErrorsForTest()}
 	}
 
-	s.Handle(http.MethodGet, "/posts", s.ListAllPosts, Authenticate())
+	// s.Handle(http.MethodGet, "/posts", s.ListAllPosts, Authenticate())
+	s.Handle(http.MethodGet, "/posts", s.ListAllPosts)
 	s.Handle(http.MethodPost, "/posts", s.CreatePost)
 	s.Handle(http.MethodGet, "/posts/{id}", s.GetPostByID)
 	s.Handle(http.MethodPut, "/posts/{id}", s.UpdatePostByID)
