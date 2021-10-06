@@ -17,11 +17,11 @@ type NewCommunity struct {
 }
 
 type Post struct {
-	ID          int64     `db:"post_id" json:"id" `
-	Title       string    `db:"title" json:"title"`
-	Content     string    `db:"content" json:"content"`
-	Author      int64     `db:"author_id" json:"author_id"`
-	Community   int64     `db:"community_id" json:"community_id"`
+	ID      int64  `db:"post_id" json:"id" `
+	Title   string `db:"title" json:"title"`
+	Content string `db:"content" json:"content"`
+	Author  int64  `db:"author_id" json:"author_id"`
+	// Community   int64     `db:"community_id" json:"community_id"`
 	Create_time time.Time `db:"create_time" json:"create_time"`
 	Update_time time.Time `db:"update_time" json:"update_time"`
 }

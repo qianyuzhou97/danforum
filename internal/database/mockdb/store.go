@@ -106,7 +106,7 @@ func (mr *MockStoreMockRecorder) DeletePostByID(arg0, arg1 interface{}) *gomock.
 }
 
 // GetCommunityByID mocks base method.
-func (m *MockStore) GetCommunityByID(arg0 context.Context, arg1 string) (*database.Community, error) {
+func (m *MockStore) GetCommunityByID(arg0 context.Context, arg1 int64) (*database.Community, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetCommunityByID", arg0, arg1)
 	ret0, _ := ret[0].(*database.Community)

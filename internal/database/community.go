@@ -18,7 +18,7 @@ func (d *DB) ListAllCommunity(ctx context.Context) ([]Community, error) {
 	return community, nil
 }
 
-func (d *DB) GetCommunityByID(ctx context.Context, communityID string) (*Community, error) {
+func (d *DB) GetCommunityByID(ctx context.Context, communityID int64) (*Community, error) {
 	var p Community
 
 	const q = `SELECT * FROM community WHERE community_id = ?`

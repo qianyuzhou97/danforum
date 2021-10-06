@@ -6,7 +6,7 @@ import (
 
 type Store interface {
 	ListAllCommunity(ctx context.Context) ([]Community, error)
-	GetCommunityByID(ctx context.Context, communityID string) (*Community, error)
+	GetCommunityByID(ctx context.Context, communityID int64) (*Community, error)
 	CreateCommunity(ctx context.Context, nc NewCommunity) error
 
 	ListAllPosts(ctx context.Context) ([]Post, error)
