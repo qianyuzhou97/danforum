@@ -20,5 +20,5 @@ COPY --from=builder /go/bin/api /bin/api
 # 申明暴露的端口
 EXPOSE 8000
 
-# 设置服务入口
+# 设置服务入口 Unit test for db and http/ middleware/ transaction.
 ENTRYPOINT [ "/bin/api" ]
