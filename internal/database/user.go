@@ -2,15 +2,12 @@ package database
 
 import (
 	"context"
-	"crypto/md5"
 	"database/sql"
-	"encoding/hex"
 
 	"github.com/pkg/errors"
+	pw "github.com/qianyuzhou97/danforum/internal/util/password"
 	"github.com/qianyuzhou97/danforum/internal/util/snowflake"
 )
-
-const secret = "dan"
 
 var (
 	// ErrAuthenticationFailure occurs when a user attempts to authenticate but
@@ -18,20 +15,19 @@ var (
 	ErrAuthenticationFailure = errors.New("Authentication failed")
 )
 
-func encryptPassword(oPassword string) string {
-	h := md5.New()
-	h.Write([]byte(secret))
-	return hex.EncodeToString(h.Sum([]byte(oPassword)))
-}
-
 // Create inserts a new user into the database.
 func (d *DB) CreateUser(ctx context.Context, n NewUser) error {
 
 	const q = `INSERT INTO user
 		(user_id, username, password, email)
 		VALUES (?,?,?,?)`
-	_, err := d.DB.ExecContext(
-		ctx, q, snowflake.GenID(), n.Username, encryptPassword(n.Password), n.Email)
+
+	hashPass, err := pw.HashPassword(n.Password)
+	if err != nil {
+		return err
+	}
+	_, err = d.DB.ExecContext(
+		ctx, q, snowflake.GenID(), n.Username, hashPass, n.Email)
 	if err != nil {
 		return errors.Wrap(err, "inserting user")
 	}
@@ -57,8 +53,7 @@ func (d *DB) Authenticate(ctx context.Context, username, password string) error 
 
 	// Compare the provided password with the saved hash. Use the bcrypt
 	// comparison function so it is cryptographically secure.
-	encrypted := encryptPassword(password)
-	if encrypted != u.Password {
+	if pw.CheckPassword(password, u.Password) != nil {
 		return ErrAuthenticationFailure
 	}
 
