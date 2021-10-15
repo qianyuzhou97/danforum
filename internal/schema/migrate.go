@@ -14,8 +14,8 @@ CREATE TABLE posts (
 	post_id   bigint primary key,
 	title        VARCHAR(128),
 	content      VARCHAR(8192),
-	author_id  INT,
-	community_id INT, 
+	author_id  bigint,
+	community_id bigint, 
 	create_time TIMESTAMP default CURRENT_TIMESTAMP,
 	update_time TIMESTAMP default CURRENT_TIMESTAMP on update CURRENT_TIMESTAMP
 );`,
