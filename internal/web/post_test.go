@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"database/sql"
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
@@ -85,80 +86,80 @@ func TestListAllPosts(t *testing.T) {
 
 }
 
-// func TestGetPostByID(t *testing.T) {
+func TestGetPostByID(t *testing.T) {
 
-// 	posts := []database.Post{{
-// 		ID:      1234,
-// 		Title:   "Join us on gopher slack",
-// 		Content: "Just as title suggests",
-// 		Author:  1,
-// 	}, {
-// 		ID:      123,
-// 		Title:   "Join us on c++ slack",
-// 		Content: "Just as title suggests",
-// 		Author:  2,
-// 	}}
+	posts := []database.Post{{
+		ID:      1234,
+		Title:   "Join us on gopher slack",
+		Content: "Just as title suggests",
+		Author:  1,
+	}, {
+		ID:      123,
+		Title:   "Join us on c++ slack",
+		Content: "Just as title suggests",
+		Author:  2,
+	}}
 
-// 	tests := []struct {
-// 		name          string
-// 		postID        int64
-// 		mock          func(m *mockdb.MockStore)
-// 		checkResponse func(t *testing.T, recorder *httptest.ResponseRecorder)
-// 	}{
-// 		{
-// 			name:   "OK",
-// 			postID: 1234,
-// 			mock: func(m *mockdb.MockStore) {
-// 				m.EXPECT().
-// 					GetPostByID(gomock.Any(), int64(1234)).
-// 					Times(1).
-// 					Return(&posts[0], nil)
-// 			},
-// 			checkResponse: func(t *testing.T, recorder *httptest.ResponseRecorder) {
-// 				require.Equal(t, http.StatusOK, recorder.Code)
-// 				requireBodyMatchPost(t, recorder.Body, posts[0])
-// 			},
-// 		},
-// 		{
-// 			name:   "Error",
-// 			postID: 12,
-// 			mock: func(m *mockdb.MockStore) {
-// 				m.EXPECT().
-// 					GetPostByID(gomock.Any(), int64(12)).
-// 					Times(1).
-// 					Return(nil, sql.ErrNoRows)
-// 			},
-// 			checkResponse: func(t *testing.T, recorder *httptest.ResponseRecorder) {
-// 				require.Equal(t, http.StatusInternalServerError, recorder.Code)
-// 			},
-// 		},
-// 	}
+	tests := []struct {
+		name          string
+		postID        int64
+		mock          func(m *mockdb.MockStore)
+		checkResponse func(t *testing.T, recorder *httptest.ResponseRecorder)
+	}{
+		{
+			name:   "OK",
+			postID: 1234,
+			mock: func(m *mockdb.MockStore) {
+				m.EXPECT().
+					GetPostByID(gomock.Any(), int64(1234)).
+					Times(1).
+					Return(&posts[0], nil)
+			},
+			checkResponse: func(t *testing.T, recorder *httptest.ResponseRecorder) {
+				require.Equal(t, http.StatusOK, recorder.Code)
+				requireBodyMatchPost(t, recorder.Body, posts[0])
+			},
+		},
+		{
+			name:   "Error",
+			postID: 12,
+			mock: func(m *mockdb.MockStore) {
+				m.EXPECT().
+					GetPostByID(gomock.Any(), int64(12)).
+					Times(1).
+					Return(nil, sql.ErrNoRows)
+			},
+			checkResponse: func(t *testing.T, recorder *httptest.ResponseRecorder) {
+				require.Equal(t, http.StatusInternalServerError, recorder.Code)
+			},
+		},
+	}
 
-// 	for _, tt := range tests {
-// 		t.Run(tt.name, func(t *testing.T) {
-// 			ctrl := gomock.NewController(t)
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			ctrl := gomock.NewController(t)
 
-// 			defer ctrl.Finish()
-// 			m := mockdb.NewMockStore(ctrl)
+			defer ctrl.Finish()
+			m := mockdb.NewMockStore(ctrl)
 
-// 			tt.mock(m)
+			tt.mock(m)
 
-// 			srv := NewServer().SetDB(m).SetRoutes(true)
+			srv := NewServer().SetDB(m).SetRoutes(true)
 
-// 			recorder := httptest.NewRecorder()
+			recorder := httptest.NewRecorder()
 
-// 			url := fmt.Sprintf("/posts/%d", tt.postID)
+			url := fmt.Sprintf("/posts/%d", tt.postID)
 
-// 			request, err := http.NewRequest(http.MethodGet, url, nil)
+			request, err := http.NewRequest(http.MethodGet, url, nil)
 
-// 			require.NoError(t, err)
+			require.NoError(t, err)
 
-// 			srv.mux.ServeHTTP(recorder, request)
-// 			tt.checkResponse(t, recorder)
-// 		})
-// 	}
+			srv.mux.ServeHTTP(recorder, request)
+			tt.checkResponse(t, recorder)
+		})
+	}
 
-// }
+}
 
 // func TestCreatePost(t *testing.T) {
 
